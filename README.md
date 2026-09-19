@@ -12,3 +12,6 @@ DropQR is a client-side web utility that streamlines gathering photos, notes, an
 - **Frontend:** HTML5, CSS3, JavaScript (ES6+)
 - **Libraries:** QRCode.js
 - **Deployment:** GitHub Pages
+
+## Link :
+https://draco-go-89.github.io/dropqr/

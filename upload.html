@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Send Details</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="card">
+    <h1 id="pageTitle">Send Information</h1>
+    <p class="subtitle">Fill out the details below to compose an email directly to the recipient.</p>
+
+    <form id="submissionForm">
+      <div id="field-name" class="form-group" style="display: none;">
+        <label for="senderName">Your Name</label>
+        <input type="text" id="senderName" placeholder="Enter your name" />
+      </div>
+
+      <div id="field-date" class="form-group" style="display: none;">
+        <label for="senderDate">Date</label>
+        <input type="date" id="senderDate" />
+      </div>
+
+      <div id="field-note" class="form-group" style="display: none;">
+        <label for="senderNote">Message / Note</label>
+        <textarea id="senderNote" rows="4" placeholder="Write your message here..."></textarea>
+      </div>
+
+      <div id="field-photos-hint" class="form-group" style="display: none; background: #fbfcfd; border: 1px solid #d0d7de; padding: 10px 12px; border-radius: 4px;">
+        <p style="font-size: 0.85rem; color: #57606a;">
+          📎 <strong>Sending Photos/Videos:</strong> After clicking the button below, use the attachment (paperclip) icon inside your mail app to attach your files.
+        </p>
+      </div>
+
+      <button type="submit" class="btn" id="submitBtn">Open in Mail App</button>
+    </form>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const title = params.get('title') ? decodeURIComponent(params.get('title')) : 'Submission';
+    const recipientEmail = params.get('to') ? decodeURIComponent(params.get('to')) : '';
+
+    document.getElementById('pageTitle').innerText = title;
+
+    // Show only the fields chosen by the creator
+    if (params.get('name') === 'true') document.getElementById('field-name').style.display = 'block';
+    if (params.get('date') === 'true') document.getElementById('field-date').style.display = 'block';
+    if (params.get('note') === 'true') document.getElementById('field-note').style.display = 'block';
+    if (params.get('photos') === 'true') document.getElementById('field-photos-hint').style.display = 'block';
+
+    const form = document.getElementById('submissionForm');
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const nameVal = document.getElementById('senderName').value.trim();
+      const dateVal = document.getElementById('senderDate').value;
+      const noteVal = document.getElementById('senderNote').value.trim();
+
+      // Format the email body text cleanly
+      let bodyText = `Submission for: ${title}\n\n`;
+      if (nameVal) bodyText += `From: ${nameVal}\n`;
+      if (dateVal) bodyText += `Date: ${dateVal}\n`;
+      if (noteVal) bodyText += `\nMessage:\n${noteVal}\n`;
+
+      if (params.get('photos') === 'true') {
+        bodyText += `\n[Photos / Attachments to be attached below]\n`;
+      }
+
+      // Encode parameters into a standard mailto URI
+      const subject = encodeURIComponent(`[DropQR] ${title}`);
+      const body = encodeURIComponent(bodyText);
+      const mailtoUrl = `mailto:${recipientEmail}?subject=${subject}&body=${body}`;
+
+      // Trigger user's mail client
+      window.location.href = mailtoUrl;
+    });
+  </script>
+</body>
+</html>

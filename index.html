@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DropQR - Direct Email</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="card">
+    <h1>Create Drop-Box QR</h1>
+    <p class="subtitle">Scanners will draft an email sent directly to your address.</p>
+
+    <form id="qrForm">
+      <div class="form-group">
+        <label for="eventTitle">Event / Collection Title</label>
+        <input type="text" id="eventTitle" placeholder="e.g. Birthday Party, Lost Item" required />
+      </div>
+
+      <div class="form-group">
+        <label for="recipientEmail">Your Email Address</label>
+        <input type="email" id="recipientEmail" placeholder="yourname@gmail.com" required />
+      </div>
+
+      <div class="form-group">
+        <label>Requested Fields:</label>
+        <div class="checkboxes">
+          <label><input type="checkbox" id="reqName" checked /> Sender's Name</label>
+          <label><input type="checkbox" id="reqDate" /> Date</label>
+          <label><input type="checkbox" id="reqNote" checked /> Message / Note</label>
+          <label><input type="checkbox" id="reqPhotos" checked /> Request Photos / Files</label>
+        </div>
+      </div>
+
+      <button type="submit" class="btn">Generate QR Code</button>
+    </form>
+
+    <div id="qrResult" class="qr-output" style="display: none;">
+      <hr style="margin: 20px 0; border: none; border-top: 1px solid #d0d7de;" />
+      <h3>Your QR Code</h3>
+      <div id="qrcode"></div>
+      <p class="small-text">Scan with your phone to test the draft form.</p>
+      
+      <button id="downloadBtn" class="btn btn-secondary">Download QR Code Image</button>
+    </div>
+  </div>
+
+  <script>
+    const qrForm = document.getElementById('qrForm');
+    const qrResult = document.getElementById('qrResult');
+    const qrContainer = document.getElementById('qrcode');
+    const downloadBtn = document.getElementById('downloadBtn');
+
+    qrForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const title = encodeURIComponent(document.getElementById('eventTitle').value.trim());
+      const email = encodeURIComponent(document.getElementById('recipientEmail').value.trim());
+      const reqName = document.getElementById('reqName').checked;
+      const reqDate = document.getElementById('reqDate').checked;
+      const reqNote = document.getElementById('reqNote').checked;
+      const reqPhotos = document.getElementById('reqPhotos').checked;
+
+      const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/')) + '/upload.html';
+      const uploadUrl = `${baseUrl}?title=${title}&to=${email}&name=${reqName}&date=${reqDate}&note=${reqNote}&photos=${reqPhotos}`;
+
+      qrContainer.innerHTML = '';
+      new QRCode(qrContainer, {
+        text: uploadUrl,
+        width: 220,
+        height: 220,
+        correctLevel: QRCode.CorrectLevel.H
+      });
+
+      qrResult.style.display = 'block';
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const qrImg = qrContainer.querySelector('img');
+      if (qrImg && qrImg.src) {
+        const link = document.createElement('a');
+        link.href = qrImg.src;
+        link.download = 'direct-email-qr.png';
+        link.click();
+      }
+    });
+  </script>
+</body>
+</html>
